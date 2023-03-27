@@ -12,7 +12,7 @@ use std::sync::atomic::Ordering;
 use std::time::Instant;
 use uuid::Uuid;
 
-//static BIN_DENO: &str = "/home/XXX/.deno/bin/deno";
+static DEFAULT_BIN_DENO: &str = "/root/.deno/bin/deno";
 use crate::GLOBAL_DENO_THREAD_COUNT;
 use crate::MAX_DENO_THREADS;
 
@@ -49,13 +49,9 @@ pub fn remove(filename: &str) {
 pub async fn run(code: &str) -> HttpResponse {
     println!("DenoRun-->{:?}", code);
 
-    let deno_binary = match env::var("DENO_BIN") {
+    let deno_binary = match env::var("ENV_DENO_BIN") {
         Ok(val) => val,
-        Err(_) => {
-            return HttpResponse::Ok()
-                .status(StatusCode::UNAUTHORIZED)
-                .body("DENO_BIN not set as environment variable.".to_string());
-        }
+        Err(_) => DEFAULT_BIN_DENO.to_string(),
     };
 
     if code.contains("InvocaMiddleware") == false {
